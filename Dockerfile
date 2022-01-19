@@ -10,6 +10,6 @@ get env vars for discord and k8s connection
 
 run discord.py, passing in connection variables.
 
-ENV ADMIN_PASS="temp"
+ENV BOT_TOKEN="empty"
 
-ENTRYPOINT [ "sh", "-c", "python discord.py $ADMIN_PASS"]
+ENTRYPOINT [ "sh", "-c", "python discord.py -t $BOT_TOKEN"]
