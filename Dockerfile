@@ -4,7 +4,7 @@ RUN go get github.com/bwmarrin/discordgo
 
 WORKDIR /app
 
-COPY gogabo/main.go ./gogabo/src/
+COPY gogabo/* ./gogabo/src/
 
 ENV DG_TOKEN=""
 
