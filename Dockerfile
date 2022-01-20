@@ -1,15 +1,9 @@
-FROM python
+FROM golang
 
-RUN pip install discord.py
+RUN go get github.com/bwmarrin/discordgo
 
-copy in discord.py
+copy in gogabo/main.go
 
-copy in k8s.py
+ENV DG_TOKEN=""
 
-get env vars for discord and k8s connection
-
-run discord.py, passing in connection variables.
-
-ENV BOT_TOKEN="empty"
-
-ENTRYPOINT [ "sh", "-c", "python discord.py -t $BOT_TOKEN"]
+ENTRYPOINT [ "sh", "-c", "go run main.go"]
