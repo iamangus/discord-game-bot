@@ -40,6 +40,8 @@ func main() {
 		log.Printf("error opening connection to Discord, %s\n", err)
 		os.Exit(1)
 	}
+
+	listChannels(Session)
 	
 	// Wait for a CTRL-C
 	log.Printf(`Now running. Press CTRL-C to exit.`)
@@ -51,4 +53,19 @@ func main() {
 	Session.Close()
 
 	// Exit Normally.
+}
+
+func listChannels(s *discordgo.Session) {
+    // Loop through each guild in the session
+    for _, guild := range s.State.Guilds {
+
+        // Get channels for this guild
+        channels, _ := s.GuildChannels(guild.ID)
+
+        for _, c := range channels {
+            log.Println("Channel name is " + c.Name)
+            log.Println("Channel ID is " + c.ID)
+
+        }
+    }
 }
