@@ -1,6 +1,6 @@
 FROM golang
 
-RUN go get github.com/bwmarrin/discordgo
+RUN go mod download github.com/bwmarrin/discordgo
 
 WORKDIR /app
 
