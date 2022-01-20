@@ -1,6 +1,7 @@
 FROM golang
 
-RUN go get github.com/bwmarrin/discordgo
+RUN go get github.com/bwmarrin/discordgo && \
+    find / -name *discordgo*
 
 WORKDIR /app
 
