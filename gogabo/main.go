@@ -5,17 +5,12 @@ package main
 // Import all Go packages required for this file.
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-
 	"github.com/bwmarrin/discordgo"
 )
-
-// Version is a constant that stores the Disgord version information.
-// const Version = "v0.0.0-alpha"
 
 // Session is declared in the global space so it can be easily used
 // throughout this program.
@@ -34,16 +29,6 @@ func main() {
 	// Declare any variables needed later.
 	var err error
 
-	// Print out a fancy logo!
-	fmt.Printf(` 
-	________  .__                               .___
-	\______ \ |__| ______ ____   ___________  __| _/
-	||    |  \|  |/  ___// ___\ /  _ \_  __ \/ __ | 
-	||    '   \  |\___ \/ /_/  >  <_> )  | \/ /_/ | 
-	||______  /__/____  >___  / \____/|__|  \____ | 
-	\_______\/        \/_____/   %-16s\/`+"\n\n", Version)
-
-  
 	// Verify a Token was provided
 	if Session.Token == "" {
 		log.Println("You must provide a Discord authentication token.")
