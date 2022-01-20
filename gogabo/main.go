@@ -43,7 +43,7 @@ func main() {
 
 	listChannels(Session)
 
-	log.Printf(Session.State.Guilds)
+	log.Printf(Session.State.Guilds[])
 
 	for _, guild := range Session.State.Guilds {
 	    channels, _ := Session.GuildChannels(guild.ID)
