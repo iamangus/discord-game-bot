@@ -1,8 +1,8 @@
 FROM golang
 
-RUN go get github.com/bwmarrin/discordgo
-
 WORKDIR /app
+
+RUN go get github.com/bwmarrin/discordgo
 
 COPY gogabo/main.go ./
 
