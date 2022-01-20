@@ -1,10 +1,10 @@
 FROM golang
 
-RUN go mod download github.com/bwmarrin/discordgo
-
 WORKDIR /app
 
 COPY gogabo/* ./
+
+RUN go mod download github.com/bwmarrin/discordgo
 
 ENV DG_TOKEN=""
 
