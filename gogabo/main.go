@@ -43,9 +43,10 @@ func main() {
 
 	listChannels(Session)
 
-	log.Printf(Session.State.Guilds[])
+	// log.Printf(Session.State.Guilds[])
 
 	for _, guild := range Session.State.Guilds {
+		log.Printf("guild.ID is " + guild.ID)
 	    channels, _ := Session.GuildChannels(guild.ID)
 		for _, c := range channels {
             log.Printf("Channel name is " + c.Name)
