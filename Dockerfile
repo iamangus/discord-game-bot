@@ -1,7 +1,7 @@
 FROM golang
 
 RUN go get github.com/bwmarrin/discordgo && \
-    find / -name *discordgo*
+    go install github.com/bwmarrin/discordgo
 
 WORKDIR /app
 
