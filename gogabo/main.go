@@ -4,7 +4,6 @@ package main
 
 // Import all Go packages required for this file.
 import (
-	"flag"
 	"log"
 	"os"
 	"os/signal"
