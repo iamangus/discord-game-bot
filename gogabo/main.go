@@ -41,6 +41,8 @@ func main() {
 		log.Printf("error opening connection to Discord, %s\n", err)
 		os.Exit(1)
 	}
+	
+	session.AddHandler(message)
 
 	// Wait for a CTRL-C
 	log.Printf(`Now running. Press CTRL-C to exit.`)
@@ -52,4 +54,39 @@ func main() {
 	Session.Close()
 
 	// Exit Normally.
+}
+
+func message(bot *discordgo.Session, message *discordgo.MessageCreate) {
+	if message.Author.Bot { return }
+	switch {
+	case strings.HasPrefix(message.Content, config.BotPrefix):
+		ping := bot.HeartbeatLatency().Truncate(60)
+		if message.Content == "&ping" {
+			bot.ChannelMessageSend(message.ChannelID,`My latency is **` + ping.String() + `**!`)
+		}
+		if message.Content == "&author" {
+			bot.ChannelMessageSend(message.ChannelID, "My author is Gonz#0001, I'm only a template discord bot made in golang.")
+		}
+		if message.Content == "&github" {
+			embed := embed.NewEmbed().
+				SetAuthor(message.Author.Username, message.Author.AvatarURL("1024")).
+				SetThumbnail(message.Author.AvatarURL("1024")).
+				SetTitle("My repository").
+				SetDescription("You can find my repository by clicking [here](https://github.com/gonzyui/Discord-Template).").
+				SetColor(0x00ff00).MessageEmbed
+			bot.ChannelMessageSendEmbed(message.ChannelID, embed)
+		}
+		if message.Content == "&botinfo" {
+			guilds := len(bot.State.Guilds)
+			embed := embed.NewEmbed().
+				SetTitle("My informations").
+				SetDescription("Some informations about me :)").
+				AddField("GO version:", runtime.Version()).
+				AddField("DiscordGO version:", discordgo.VERSION).
+				AddField("Concurrent tasks:", strconv.Itoa(runtime.NumGoroutine())).
+				AddField("Latency:", ping.String()).
+				AddField("Total guilds:", strconv.Itoa(guilds)).MessageEmbed
+			bot.ChannelMessageSendEmbed(message.ChannelID, embed)
+		}
+	}
 }
