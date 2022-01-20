@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY gogabo/* ./
 
-RUN go mod download github.com/bwmarrin/discordgo
+RUN go mod download github.com/bwmarrin/discordgo && \
+    go get github.com/bwmarrin/discordgo
 
 ENV DG_TOKEN=""
 
