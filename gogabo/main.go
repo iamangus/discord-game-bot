@@ -21,7 +21,6 @@ var Session, _ = discordgo.New()
 func init() {
 	// Discord Authentication Token
 	Session.Token = os.Getenv("DG_TOKEN")
-	log.Println(Session.Token)
 }
 
 func main() {
