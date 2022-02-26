@@ -3,9 +3,10 @@ FROM golang
 WORKDIR /app
 
 COPY gogabo/* ./
+    
+RUN go mod download
 
-RUN go mod download github.com/bwmarrin/discordgo && \
-    go get github.com/bwmarrin/discordgo
+RUN go build
 
 ENV DG_TOKEN=""
 
