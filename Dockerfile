@@ -6,6 +6,8 @@ COPY gogabo/* ./
     
 RUN go mod download
 
+RUN go get gogabo
+
 RUN go build
 
 ENV DG_TOKEN=""
