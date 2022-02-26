@@ -1,1 +1,1 @@
-# discord-game-bot
+# go-game-bot
