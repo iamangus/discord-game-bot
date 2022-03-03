@@ -274,7 +274,8 @@ func reactionRecieved(Session *discordgo.Session, r *discordgo.MessageReactionAd
 	} else if actionReq == "🟢" {
 		actionReq = "start"
 	} else {
-		log.Printf("Incorrect emoji! Quitting!")
+		log.Printf("Incorrect emoji:" + r.Emoji.Name + "! Quitting!")
+		go cleanReactions(Session, r.MessageID, r.ChannelID)
 		return;
 	}
 
