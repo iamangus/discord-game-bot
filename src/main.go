@@ -1,24 +1,18 @@
-// Declare this file to be part of the main package so it can be compiled into
-// an executable.
 package main
 
 // Import all Go packages required for this file.
 import (
 	//Shared
-	//"container/list"
 	"log"
 	"time"
 	"fmt"
-	//"time"
 
 	//K8s
 	"context"
 	"strings"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	//v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"github.com/kr/pretty"
 
 	//Discord
 	"os"
@@ -64,11 +58,7 @@ func init() {
 
 func main() {
 
-
-	//Session.AddHandler(buildMessages)
-
 	buildMessages(Session)
-
 	Session.AddHandler(reactionRecieved)
 
 	time.Sleep(10 * time.Second)
@@ -104,7 +94,6 @@ func buildMessages(Session *discordgo.Session) {
 			}
 		}
 
-
 		for game := range payLoad[guild.ID] {
 			//Check to see if a game message has been sent for each game server, if it has, update the struct with said messages ID
 			var limit int = 100
@@ -118,10 +107,7 @@ func buildMessages(Session *discordgo.Session) {
 					if strings.Contains(messageHistory[m].Embeds[0].Title, payLoad[guild.ID][game].gameName) {
 						payLoad[guild.ID][game].messageID = messageHistory[m].ID
 					}
-					
-	
 				}
-	
 			}
 
 			//Checking server status
@@ -135,15 +121,12 @@ func buildMessages(Session *discordgo.Session) {
 			currentGame := payLoad[guild.ID][game]
 
 			if payLoad[guild.ID][game].messageID == "" {
-				sendMessage(currentGame, currStatus, serverChannel, Session)
+				go sendMessage(currentGame, currStatus, serverChannel, Session)
 			} else {
-				updateMessage(currentGame, currStatus, serverChannel, Session)
+				go updateMessage(currentGame, currStatus, serverChannel, Session)
 			}
-
 		}
-
 	}
-
 }
 
 type gameServer struct {
@@ -175,7 +158,6 @@ func genServerList(guildList []string) map[string][]gameServer {
 	deployMap := make(map[string][]gameServer)
 
 	for guild := range guildList {
-
 		deploySlice := make([]gameServer, 0)
 		
 		for i := range deployList.Items {	
@@ -185,21 +167,16 @@ func genServerList(guildList []string) map[string][]gameServer {
 				currServer := gameServer{deployList.Items[i].Labels["gamename"], deployList.Items[i].Namespace, deployList.Items[i].Status.AvailableReplicas, deployList.Items[i].Name, ""}
 
 				deploySlice = append(deploySlice, currServer)
-
 			}
-
 		}
-
 		deployMap[guildList[guild]] = deploySlice
-
 	}
-
 	return deployMap
 }
 
 
 
-func sendMessage(gameStruct gameServer, currStatus string, serverChannel string, Session *discordgo.Session) string {
+func sendMessage(gameStruct gameServer, currStatus string, serverChannel string, Session *discordgo.Session) {
 
 	embed := &discordgo.MessageEmbed{
 		Author:      &discordgo.MessageEmbedAuthor{},
@@ -222,19 +199,10 @@ func sendMessage(gameStruct gameServer, currStatus string, serverChannel string,
 		Title:     gameStruct.gameName,
 	}
 
-
 	msg, _ := Session.ChannelMessageSendEmbed(serverChannel, embed)
 
-	//Session.MessageReactionsRemoveAll(serverChannel, msg.ID)
-
-	fmt.Printf("%# v", pretty.Formatter(serverChannel))
-	fmt.Printf("%# v", pretty.Formatter(msg.ID))
-
-	Session.MessageReactionAdd(serverChannel, msg.ID, "🟢")
-	Session.MessageReactionAdd(serverChannel, msg.ID, "🔴")
-
-	return msg.ID
-
+	go Session.MessageReactionAdd(serverChannel, msg.ID, "🟢")
+	go Session.MessageReactionAdd(serverChannel, msg.ID, "🔴")
 }
 
 func updateMessage(gameStruct gameServer, currStatus string, serverChannel string, Session *discordgo.Session) {
@@ -262,56 +230,42 @@ func updateMessage(gameStruct gameServer, currStatus string, serverChannel strin
 
 	Session.ChannelMessageEditEmbed(serverChannel, gameStruct.messageID, embed)
 
-	Session.MessageReactionsRemoveAll(serverChannel, gameStruct.messageID)
+	go cleanReactions(Session, gameStruct.messageID, serverChannel)
 
-	Session.MessageReactionAdd(serverChannel, gameStruct.messageID, "🟢")
-	Session.MessageReactionAdd(serverChannel, gameStruct.messageID, "🔴")
+}
 
-	//This was built to more elegantly clean up reactions on Gogabos messages.
-	/*
-	reactionsGreen, _ := Session.MessageReactions(serverChannel, gameStruct.messageID, "🟢", 99, "", "")
-	for i := range reactionsGreen {
-		if strings.Contains(reactionsGreen[i].ID, "933803745647657010") {
-			continue
-		} else {
-			Session.MessageReactionRemove(serverChannel, gameStruct.messageID, "🟢", reactionsGreen[i].ID)
-		}
+func cleanReactions(Session *discordgo.Session, messageID string, channelID string) {
+	currMessage, _ := Session.ChannelMessage(channelID, messageID)
 
+	for reaction := range currMessage.Reactions {
+
+		go func (reaction int) {
+			msgReactions, _ := Session.MessageReactions(channelID, messageID, currMessage.Reactions[reaction].Emoji.Name, 99, "", "")
+
+			for i := range msgReactions {
+				if strings.Contains(msgReactions[i].ID, "933803745647657010") {
+					continue
+				} else {
+					go Session.MessageReactionRemove(channelID, messageID, currMessage.Reactions[reaction].Emoji.Name, msgReactions[i].ID)
+					log.Printf("Request sent to remove: " + currMessage.Reactions[reaction].Emoji.Name)
+				}
+			}
+		}(reaction)
 	}
-
-	reactionsRed, _ := Session.MessageReactions(serverChannel, gameStruct.messageID, "🔴", 99, "", "")
-	for i := range reactionsRed {
-		if strings.Contains(reactionsRed[i].ID, "933803745647657010") {
-			continue
-		} else {
-			Session.MessageReactionRemove(serverChannel, gameStruct.messageID, "🔴", reactionsRed[i].ID)
-		}
-
-	}
-	*/
-
-	//Session.MessageReactionsRemoveAll(serverChannel, gameStruct.messageID)
-
-
-
 }
 
 func reactionRecieved(Session *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	// we need to pass in the channel name
-
-	//log.Printf("We got a reaction!")
-	//fmt.Printf("%# v", pretty.Formatter(r))
 
 	if r.UserID == "933803745647657010" {
 		//ignore the bots reactions.
 		return;
 	}
 
-
-
 	msg, _ := Session.ChannelMessage(r.ChannelID, r.MessageID)
 
-	fmt.Printf("%# v", pretty.Formatter(msg.Embeds[0].Title))
+	//fmt.Printf("%# v", pretty.Formatter("Emoji recieved on: " + msg.Embeds[0].Title + /n))
+	log.Printf(r.Emoji.Name + " recieved on: " + msg.Embeds[0].Title)
 
 	actionReq := r.Emoji.Name
 
@@ -323,9 +277,6 @@ func reactionRecieved(Session *discordgo.Session, r *discordgo.MessageReactionAd
 		log.Printf("Incorrect emoji! Quitting!")
 		return;
 	}
-
-	//fmt.Printf("%# v", pretty.Formatter(actionReq))
-
 
 	//Generating list of guilds
 	guildSlice := make([]string, 0)
@@ -345,7 +296,6 @@ func reactionRecieved(Session *discordgo.Session, r *discordgo.MessageReactionAd
 	time.Sleep(10 * time.Second)
 
 	buildMessages(Session)
-
 }
 
 func scaleDeployment(deploymentName string, nameSpace string, actionReq string) {
@@ -373,18 +323,15 @@ func scaleDeployment(deploymentName string, nameSpace string, actionReq string) 
 	} else if actionReq == "start" {
 		sc.Spec.Replicas = 1
 	} else {
-		log.Printf("Something went wrong when dtermining deployment scale request")
+		log.Printf("Something went wrong when determining deployment scale request")
 		return;
 	}
 
-
-
-    us, err := clientset.AppsV1().Deployments(nameSpace).UpdateScale(context.TODO(), deploymentName, &sc, metav1.UpdateOptions{})
+    _, err = clientset.AppsV1().Deployments(nameSpace).UpdateScale(context.TODO(), deploymentName, &sc, metav1.UpdateOptions{})
     if err != nil {
         log.Fatal(err)
     }
 
-	log.Println("scaling!")
-	log.Println(*us)
+	log.Println("scaling '" + deploymentName + "' to " + fmt.Sprint(sc.Spec.Replicas) + " replicas.")
 
 }
