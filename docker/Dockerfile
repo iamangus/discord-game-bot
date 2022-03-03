@@ -2,7 +2,7 @@ FROM golang
 
 WORKDIR /app
 
-COPY gogabo/* ./
+COPY src/* ./
     
 RUN go mod download
 
