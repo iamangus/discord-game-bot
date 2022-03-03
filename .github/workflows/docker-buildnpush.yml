@@ -20,10 +20,10 @@ jobs:
       id: vars
       run: echo ::set-output name=tag::$(echo $(date +%s))
     - name: Build the tagged Docker image
-      run: docker build . --file docker/Dockerfile --tag docker.pkg.github.com/iamangus/discord-game-bot/discord-game-bot:latest
+      run: docker build . --file docker/Dockerfile --tag docker.pkg.github.com/iamangus/go-game-bot/go-game-bot:latest
     - name: Push the latest Docker image
-      run: docker push docker.pkg.github.com/iamangus/discord-game-bot/discord-game-bot:latest
+      run: docker push docker.pkg.github.com/iamangus/go-game-bot/go-game-bot:latest
     - name: retag and push
-      run: docker tag docker.pkg.github.com/iamangus/discord-game-bot/discord-game-bot:latest docker.pkg.github.com/iamangus/discord-game-bot/discord-game-bot:${{steps.vars.outputs.tag}}
+      run: docker tag docker.pkg.github.com/iamangus/go-game-bot/go-game-bot:latest docker.pkg.github.com/iamangus/go-game-bot/go-game-bot:${{steps.vars.outputs.tag}}
     - name: Push the tagged Docker image
-      run: docker push docker.pkg.github.com/iamangus/discord-game-bot/discord-game-bot:${{steps.vars.outputs.tag}}
+      run: docker push docker.pkg.github.com/iamangus/go-game-bot/go-game-bot:${{steps.vars.outputs.tag}}
