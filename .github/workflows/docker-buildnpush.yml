@@ -20,7 +20,7 @@ jobs:
       id: vars
       run: echo ::set-output name=tag::$(echo $(date +%s))
     - name: Build the tagged Docker image
-      run: docker build docker/. --file Dockerfile --tag docker.pkg.github.com/iamangus/discord-game-bot/discord-game-bot:latest
+      run: docker build . --file docker/Dockerfile --tag docker.pkg.github.com/iamangus/discord-game-bot/discord-game-bot:latest
     - name: Push the latest Docker image
       run: docker push docker.pkg.github.com/iamangus/discord-game-bot/discord-game-bot:latest
     - name: retag and push
